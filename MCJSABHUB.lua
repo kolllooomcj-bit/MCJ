@@ -792,3 +792,63 @@ toggleBtn.MouseButton1Click:Connect(function()
 	frame.Visible = not frame.Visible
 	toggleBtn.Text = frame.Visible and "Hide GUI" or "Show GUI"
 end)
+
+-- =========================
+-- NÚT 8: Maranda
+-- =========================
+makeButton("Maranda", function()
+    loadstring(game:HttpGet("https://pastefy.app/JJVhs3rK/raw"))()
+end)
+
+-- =========================
+-- NÚT 9: Anti Kick
+-- =========================
+makeButton("Anti Kick", function()
+    -- Ngăn chặn việc bị kick (hook Kick/Destroy)
+    local mt = getrawmetatable(game)
+    local oldNamecall = mt.__namecall
+    setreadonly(mt, false)
+
+    mt.__namecall = newcclosure(function(self, ...)
+        local method = getnamecallmethod()
+        if method == "Kick" or method == "kick" then
+            warn("[MCJ] Anti Kick chặn Kick!")
+            return nil
+        end
+        return oldNamecall(self, ...)
+    end)
+
+    setreadonly(mt, true)
+    print("[MCJ] Anti Kick đã bật.")
+end)
+
+-- =========================
+-- NÚT 10: Kick Button
+-- =========================
+makeButton("Kick Button", function()
+    local player = game.Players.LocalPlayer
+    local gui = player:WaitForChild("PlayerGui")
+
+    -- nếu GUI ẩn chưa tồn tại thì tạo
+    local kickGui = gui:FindFirstChild("MCJ_KickGui")
+    if not kickGui then
+        kickGui = Instance.new("ScreenGui", gui)
+        kickGui.Name = "MCJ_KickGui"
+        kickGui.Enabled = false
+
+        local btn = Instance.new("TextButton", kickGui)
+        btn.Size = UDim2.new(0,200,0,50)
+        btn.Position = UDim2.new(0.5,-100,0.5,-200)
+        btn.Text = "Kick Me"
+        btn.TextSize = 20
+        btn.BackgroundColor3 = Color3.fromRGB(200,50,50)
+        btn.TextColor3 = Color3.new(1,1,1)
+
+        btn.MouseButton1Click:Connect(function()
+            player:Kick("Ngon thí.")
+        end)
+    end
+
+    -- Bật/tắt gui
+    kickGui.Enabled = not kickGui.Enabled
+end)
