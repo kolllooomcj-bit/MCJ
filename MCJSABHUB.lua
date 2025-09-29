@@ -54,102 +54,92 @@ local function makeButton(name, callback)
 end
 
 -- =========================
--- NÚT 11: Fly + Mega Block
+-- NÚT 11: JumpBoost + MegaBlock Sub-GUI
 -- =========================
-local flyBlockGui -- để lưu GUI phụ
+local subGui
 
-makeButton("Fly + Mega Block", function()
-    if flyBlockGui and flyBlockGui.Parent then
-        flyBlockGui:Destroy()
-        flyBlockGui = nil
+makeButton("⚡ Jump + Block Menu", function()
+    if subGui and subGui.Parent then
+        subGui:Destroy()
+        subGui = nil
         return
     end
 
-    local player = game.Players.LocalPlayer
-    local char = player.Character or player.CharacterAdded:Wait()
-    local hrp = char:WaitForChild("HumanoidRootPart")
+    subGui = Instance.new("ScreenGui", player.PlayerGui)
+    subGui.Name = "MCJ_SubMenu"
+    subGui.ResetOnSpawn = false
 
-    -- GUI gốc
-    flyBlockGui = Instance.new("ScreenGui")
-    flyBlockGui.Parent = player:WaitForChild("PlayerGui")
-    flyBlockGui.Name = "MCJ_FlyBlock"
-    flyBlockGui.ResetOnSpawn = false
+    local frame = Instance.new("Frame", subGui)
+    frame.Size = UDim2.new(0, 200, 0, 150)
+    frame.Position = UDim2.new(0.6, 0, 0.4, 0)
+    frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
+    frame.Active = true
+    frame.Draggable = true
+    Instance.new("UICorner", frame).CornerRadius = UDim.new(0,8)
 
-    -- Frame chính
-    local mainFrame = Instance.new("Frame")
-    mainFrame.Size = UDim2.new(0, 220, 0, 150)
-    mainFrame.Position = UDim2.new(0.4, 0, 0.3, 0)
-    mainFrame.BackgroundColor3 = Color3.fromRGB(25,25,25)
-    mainFrame.Active = true
-    mainFrame.Draggable = true
-    mainFrame.Visible = true
-    mainFrame.Parent = flyBlockGui
-    Instance.new("UICorner", mainFrame).CornerRadius = UDim.new(0,10)
-
-    -- Tiêu đề
-    local title = Instance.new("TextLabel", mainFrame)
+    local title = Instance.new("TextLabel", frame)
     title.Size = UDim2.new(1,0,0,30)
-    title.Text = "🟢 MCJ Script"
-    title.TextColor3 = Color3.fromRGB(0,255,150)
-    title.BackgroundColor3 = Color3.fromRGB(40,40,40)
+    title.Text = "⚡ MCJ Script"
     title.Font = Enum.Font.GothamBold
+    title.TextColor3 = Color3.fromRGB(0,255,150)
+    title.BackgroundColor3 = Color3.fromRGB(50,50,50)
     title.TextSize = 18
-    Instance.new("UICorner", title).CornerRadius = UDim.new(0,8)
+    Instance.new("UICorner", title).CornerRadius = UDim.new(0,6)
 
-    -- Hàm tạo nút trong frame
-    local function makeButton(name, posY, callback)
-        local btn = Instance.new("TextButton")
-        btn.Size = UDim2.new(0,200,0,40)
-        btn.Position = UDim2.new(0,10,0,posY)
-        btn.Text = name
-        btn.TextSize = 18
+    -- tạo hàm tiện
+    local function subButton(text, y, callback)
+        local btn = Instance.new("TextButton", frame)
+        btn.Size = UDim2.new(0, 180, 0, 40)
+        btn.Position = UDim2.new(0,10,0,y)
+        btn.Text = text
         btn.Font = Enum.Font.GothamBold
+        btn.TextSize = 16
         btn.BackgroundColor3 = Color3.fromRGB(60,60,60)
         btn.TextColor3 = Color3.new(1,1,1)
-        btn.Parent = mainFrame
-        Instance.new("UICorner", btn).CornerRadius = UDim.new(0,8)
+        Instance.new("UICorner", btn).CornerRadius = UDim.new(0,6)
         btn.MouseButton1Click:Connect(callback)
         return btn
     end
 
-    -- Fly
-    local flying = false
-    local bodyVel
-    local flyBtn
-    flyBtn = makeButton("🚀 Fly Up", 40, function()
-        flying = not flying
-        if flying then
-            bodyVel = Instance.new("BodyVelocity", hrp)
-            bodyVel.MaxForce = Vector3.new(0, math.huge, 0)
-            bodyVel.Velocity = Vector3.new(0, 15, 0)
-            flyBtn.Text = "⛔ Stop Fly"
+    -- 🟢 Jump Boost
+    local boostOn = false
+    local jumpBtn = subButton("🟢 Jump Boost", 40, function()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hum = char:WaitForChild("Humanoid")
+        boostOn = not boostOn
+        if boostOn then
+            hum.UseJumpPower = true
+            hum.JumpPower = hum.JumpPower * 1.6
+            workspace.Gravity = workspace.Gravity / 1
+            jumpBtn.Text = "⛔ Disable JumpBoost"
         else
-            if bodyVel then bodyVel:Destroy() bodyVel = nil end
-            flyBtn.Text = "🚀 Fly Up"
+            hum.UseJumpPower = true
+            hum.JumpPower = 50 -- reset mặc định
+            workspace.Gravity = 196.2
+            jumpBtn.Text = "🟢 Jump Boost"
         end
     end)
 
-    -- Mega Block
-    local blockActive = false
+    -- 🟦 Mega Block
+    local blockOn = false
     local megaBlock
-    local blockBtn = makeButton("🟦 Mega Block", 90, function()
-        blockActive = not blockActive
-        if blockActive then
+    local blockBtn = subButton("🟦 Mega Block", 90, function()
+        blockOn = not blockOn
+        if blockOn then
             megaBlock = Instance.new("Part")
-            megaBlock.Size = Vector3.new(10000, 1, 10000)
+            megaBlock.Size = Vector3.new(10000,1,10000)
             megaBlock.Anchored = true
-            megaBlock.Position = Vector3.new(hrp.Position.X, hrp.Position.Y - 5, hrp.Position.Z)
-            megaBlock.Color = Color3.fromRGB(100, 100, 255)
-            megaBlock.Transparency = 0.8
+            megaBlock.Position = player.Character.HumanoidRootPart.Position - Vector3.new(0,5,0)
+            megaBlock.Color = Color3.fromRGB(100,100,255)
+            megaBlock.Transparency = 0.2
             megaBlock.Parent = workspace
             blockBtn.Text = "⛔ Remove Block"
         else
-            if megaBlock then megaBlock:Destroy() megaBlock = nil end
+            if megaBlock then megaBlock:Destroy() megaBlock=nil end
             blockBtn.Text = "🟦 Mega Block"
         end
     end)
 end)
-
 -- =========================
 -- NÚT 1: Float + ESP (MCJ.lua)
 -- =========================
