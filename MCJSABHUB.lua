@@ -121,7 +121,7 @@ makeButton("Fly + Mega Block", function()
         if flying then
             bodyVel = Instance.new("BodyVelocity", hrp)
             bodyVel.MaxForce = Vector3.new(0, math.huge, 0)
-            bodyVel.Velocity = Vector3.new(0, 30, 0)
+            bodyVel.Velocity = Vector3.new(0, 15, 0)
             flyBtn.Text = "⛔ Stop Fly"
         else
             if bodyVel then bodyVel:Destroy() bodyVel = nil end
