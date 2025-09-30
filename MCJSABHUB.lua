@@ -54,7 +54,7 @@ local function makeButton(name, callback)
 end
 
 -- =========================
--- NÚT 11: JumpBoost + MegaBlock Sub-GUI
+-- NÚT 11: JumpBoost + MegaBlock + ThrowUp Sub-GUI
 -- =========================
 local subGui
 
@@ -70,7 +70,7 @@ makeButton("⚡ Jump + Block Menu", function()
     subGui.ResetOnSpawn = false
 
     local frame = Instance.new("Frame", subGui)
-    frame.Size = UDim2.new(0, 200, 0, 150)
+    frame.Size = UDim2.new(0, 220, 0, 200)
     frame.Position = UDim2.new(0.6, 0, 0.4, 0)
     frame.BackgroundColor3 = Color3.fromRGB(30,30,30)
     frame.Active = true
@@ -86,10 +86,10 @@ makeButton("⚡ Jump + Block Menu", function()
     title.TextSize = 18
     Instance.new("UICorner", title).CornerRadius = UDim.new(0,6)
 
-    -- tạo hàm tiện
+    -- hàm tiện
     local function subButton(text, y, callback)
         local btn = Instance.new("TextButton", frame)
-        btn.Size = UDim2.new(0, 180, 0, 40)
+        btn.Size = UDim2.new(0, 200, 0, 40)
         btn.Position = UDim2.new(0,10,0,y)
         btn.Text = text
         btn.Font = Enum.Font.GothamBold
@@ -109,13 +109,11 @@ makeButton("⚡ Jump + Block Menu", function()
         boostOn = not boostOn
         if boostOn then
             hum.UseJumpPower = true
-            hum.JumpPower = hum.JumpPower * 1.6
-            workspace.Gravity = workspace.Gravity / 1
+            hum.JumpPower = hum.JumpPower * 1.5
             jumpBtn.Text = "⛔ Disable JumpBoost"
         else
             hum.UseJumpPower = true
             hum.JumpPower = 50 -- reset mặc định
-            workspace.Gravity = 196.2
             jumpBtn.Text = "🟢 Jump Boost"
         end
     end)
@@ -138,6 +136,41 @@ makeButton("⚡ Jump + Block Menu", function()
             if megaBlock then megaBlock:Destroy() megaBlock=nil end
             blockBtn.Text = "🟦 Mega Block"
         end
+    end)
+
+    -- 🔼 Throw Up
+    local function throwUp()
+        local char = player.Character or player.CharacterAdded:Wait()
+        local hrp = char:FindFirstChild("HumanoidRootPart")
+        if hrp then
+            -- tạo block giả
+            local block = Instance.new("Part")
+            block.Size = Vector3.new(6,1,6)
+            block.Anchored = false
+            block.CanCollide = false -- không va chạm part khác
+            block.Transparency = 1 -- ẩn block
+            block.Parent = workspace
+            block.CFrame = hrp.CFrame - Vector3.new(0,3,0)
+
+            -- weld block với nhân vật
+            local weld = Instance.new("WeldConstraint")
+            weld.Part0 = block
+            weld.Part1 = hrp
+            weld.Parent = block
+
+            -- bodyvelocity đẩy block lên
+            local bv = Instance.new("BodyVelocity")
+            bv.MaxForce = Vector3.new(0, math.huge, 0)
+            bv.Velocity = Vector3.new(0,65,0) -- bay lên 75 studs/s
+            bv.Parent = block
+
+            -- xoá block nhanh (0.1s)
+            game:GetService("Debris"):AddItem(block,0.1)
+        end
+    end
+
+    subButton("🔼 Throw Up", 140, function()
+        throwUp()
     end)
 end)
 -- =========================
